@@ -37,5 +37,6 @@
     "psr-4": {
       "sockets\\Tests\\": "tests/"
     }
-  }
+  },
+  "minimum-stability": "dev"
 }
