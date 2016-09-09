@@ -34,16 +34,23 @@ class ClientStreamSocket {
   }
 
   public function __invoke($response) {
-    stream_socket_sendto($this->handle, static::_encode($response));
+    return static::respond($response);
+  }
+
+  public static function respond($response): bool {
+    if (stream_socket_sendto($this->handle, static::_encode($response)) === -1) {
+      return false;
+    }
+    return true;
   }
 
   public function validateWebSocket() {
-    if (!preg_match('#^Sec-WebSocket-Key: (\S+)#mi', $this->headers, $match)) {
-      return false;
+    if (is_string($this->headers) && preg_match('#^Sec-WebSocket-Key: (\S+)#mi', $this->headers, $match)) {
+      $this->_SecWebSocketKey = $match[1];
+      $this->isWebSocket = true;
+      return true;
     }
-    $this->_SecWebSocketKey = $match[1];
-    $this->isWebSocket = true;
-    return true;
+    return false;
   }
 
   public function upgradeWebSocket() {

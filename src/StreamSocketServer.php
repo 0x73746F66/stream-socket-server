@@ -117,7 +117,20 @@ class StreamSocketServer {
   public function broadcast($data) {
     echo "[INFO][".__CLASS__."::".__FUNCTION__."] " . time() . "\n";
     foreach ($this->clients as $client) {
-      $client($data);
+      if (!$client::respond($data)) {
+        $this->removeClient($client);
+      }
+    }
+  }
+
+  /**
+   * @param ClientStreamSocket $client
+   */
+  public function removeClient(ClientStreamSocket &$brokenPipeClient) {
+    foreach ($this->clients as $k => $client) {
+      if ($client->jobId === $brokenPipeClient->jobId) {
+        unset($this->clients[$k]);
+      }
     }
   }
 
@@ -127,7 +140,10 @@ class StreamSocketServer {
    */
   protected function processMessage(array $data, ClientStreamSocket &$client) {
     echo "[INFO][".__CLASS__."::".__FUNCTION__."] " . time() . "\n";
-    $client( call_user_func($this->_callback, $data, $client) );
+    $responseData = call_user_func($this->_callback, $data, $client) ?? false;
+    if (!empty($responseData) && !$client::respond($responseData)) {
+      $this->removeClient($client);
+    }
   }
 
   /**
