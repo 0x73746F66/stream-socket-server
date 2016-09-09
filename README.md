@@ -5,6 +5,19 @@ Provides a bootstrapable server for WebSockets
 
 - php 7.0.x
 
+## installation
+
+Simply add to your composer.json
+
+```
+{
+  "require": {
+    "php": "^7.0",
+    "sockets/php-stream-socket-server": "dev-master"
+  }
+}
+```
+
 ## Usage
 
 To use, create a bootstrap like this;
