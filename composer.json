@@ -23,7 +23,7 @@
     "wiki": "https://github.com/chrisdlangton/php-stream-socket-server/wiki"
   },
   "require": {
-    "php": "^5.3.3 || ^7.0"
+    "php": "^7.0"
   },
   "autoload": {
     "psr-0": {
