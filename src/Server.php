@@ -6,7 +6,7 @@ namespace sockets;
  * Class Server
  * @package sockets/php-stream-socket-server
  */
-final class Server implements iServer{
+final class Server implements iServer {
   /**
    * @var StreamSocketServer
    */
