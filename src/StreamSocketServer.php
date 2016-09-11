@@ -35,6 +35,7 @@ final class StreamSocketServer {
    */
   public function __construct(array $config = []) {
     $this->_config = array_merge(static::_default_config(), $this->_config, $config);
+    $this->setDebug($this->_config['DEBUG']??false);
   }
 
   /**
