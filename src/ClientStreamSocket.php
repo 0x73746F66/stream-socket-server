@@ -13,6 +13,7 @@ class ClientStreamSocket {
   protected $headers;
   protected $lastDataLength = 0;
   protected $data;
+  protected $client;
 
   function __construct(&$handle) {
     $type = null;
@@ -31,29 +32,15 @@ class ClientStreamSocket {
     $this->headers = stream_get_line($this->handle, 65535, "\r\n\r\n");
     $this->peer = stream_socket_get_name($this->handle, true);
     $this->_status = socket_get_status($this->handle);
+    $this->client = new Client($this, $this->_status);
   }
 
   public function __invoke($response) {
     if (is_string($response)) {
-      $this->sendText($response);
+      $this->client->sendText($response);
     } elseif (is_array($response)) {
-      $this->sendJSON($response);
+      $this->client->sendJSON($response);
     }
-  }
-
-  public function sendText($response): bool {
-    if (stream_socket_sendto($this->handle, static::_encode($response)) === -1) {
-      return false;
-    }
-    return true;
-  }
-
-  public function sendJSON(array $response) {
-    stream_socket_sendto($this->handle,
-                         static::_encode(json_encode($response,
-                                                     JSON_ERROR_INF_OR_NAN |
-                                                     JSON_NUMERIC_CHECK |
-                                                     JSON_PRESERVE_ZERO_FRACTION)));
   }
 
   public function validateWebSocket() {
@@ -77,12 +64,30 @@ class ClientStreamSocket {
   public function getDataRaw() {
     return $this->data;
   }
+
   public function getData() {
     return json_decode($this->data);
   }
 
+  public function getClient(): Client {
+    return $this->client;
+  }
+
+  public function getJobId(): string {
+    return $this->jobId;
+  }
+
+  public function getHeaders(): string {
+    return $this->headers;
+  }
+
+  public function getLastDataLength(): int {
+    return $this->lastDataLength;
+  }
+
   public function pendingMessage() {
     $this->_status = socket_get_status($this->handle);
+    $this->client->setStatus($this->_status);
     if ($this->isWebSocket) {
       $stream = stream_socket_recvfrom($this->handle, self::MAX_INCOMING_MSG_LENGTH);
       $data = static::_decode($stream);
@@ -99,12 +104,16 @@ class ClientStreamSocket {
     return false;
   }
 
-  public function disconnect(){
+  public function getHandle() {
+    return $this->handle;
+  }
+
+  final public function disconnect(){
     fclose($this->handle);
     exit(0);
   }
 
-  final static private function _decode($frame) {
+  final static public function _decode($frame) {
     $len = ord($frame[1]) & 127;
     if ($len === 126) {
       $ofs = 8;
@@ -121,7 +130,7 @@ class ClientStreamSocket {
     return $text;
   }
 
-  final static private function _encode($text) {
+  final static public function _encode($text) {
     $b   = 129; // FIN + text frame
     $len = strlen($text);
     if ($len < 126) {
