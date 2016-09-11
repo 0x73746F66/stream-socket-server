@@ -49,7 +49,7 @@ final class Client implements iClient {
    * @return bool
    */
   final public function sendText($response): bool {
-    if (stream_socket_sendto($this->clientStreamSocket->getHandle(), ClientStreamSocket::_encode($response)) === -1) {
+    if (@stream_socket_sendto($this->clientStreamSocket->getHandle(), ClientStreamSocket::_encode($response)) === -1) {
       return false;
     }
     return true;
@@ -60,7 +60,7 @@ final class Client implements iClient {
    * @return bool
    */
   final public function sendJSON(array $response): bool {
-    if (stream_socket_sendto($this->clientStreamSocket->getHandle(),
+    if (@stream_socket_sendto($this->clientStreamSocket->getHandle(),
                              ClientStreamSocket::_encode(json_encode($response,
                                                                      JSON_ERROR_INF_OR_NAN |
                                                                      JSON_NUMERIC_CHECK |
