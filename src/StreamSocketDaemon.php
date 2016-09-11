@@ -76,6 +76,8 @@ class StreamSocketDaemon {
   }
 
   function __destruct() {
-    echo "[INFO][".__CLASS__."::".__FUNCTION__."] Thread closing\n";
+    if ($this->server->getDebug()){
+      echo "[INFO][".__CLASS__."::".__FUNCTION__."] Thread closing\n";
+    }
   }
 }
