@@ -15,7 +15,7 @@ Simply add to your composer.json
 {
   "require": {
     "php": "^7.0",
-    "sockets/php-stream-socket-server": "1.0.x"
+    "sockets/php-stream-socket-server": "^1.0"
   }
 }
 ```
