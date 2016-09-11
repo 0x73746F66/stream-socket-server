@@ -7,13 +7,15 @@ Provides a bootstrapable server for WebSockets
 
 ## Installation
 
+> This project will strictly follow semantic versions.
+
 Simply add to your composer.json
 
 ```
 {
   "require": {
     "php": "^7.0",
-    "sockets/php-stream-socket-server": "dev-master"
+    "sockets/php-stream-socket-server": "1.0.x"
   }
 }
 ```
@@ -28,19 +30,17 @@ To use, create a bootstrap like this;
 <?php
 declare(ticks = 1);
 declare(strict_types = 1);
-namespace sockets;
-require 'autoload.php';
-$daemon = new StreamSocketDaemon();
-$daemon->startStreamSocketServer(function($data){
-  echo "intercepted\n";
-  var_dump($data);
+require 'vendor/autoload.php';
+$daemon = new sockets\StreamSocketDaemon(/*$config*/);
+$daemon->startStreamSocketServer(function($data, $client, $server){
+  // All client messages can be caught here
+  // use $server to manage the stream socket server status
+  // Clients can also be disconntected via the $server
+  // Use $client to send responses or simply return it like this;
   return 'data processed by the app';
 });
-exit("server failed at ".time());
+// this line is reached only when the server is stopped
+exit("server terminated at ".time());
 ```
 
-The callback will run for every client message the socket recieves, it is within here you would initialise your app based on the contents of the message payload. There is a 1 time response using the return value of the lambda.
-
-Furutre releases will expose a way that you might be able to create a server push message to all clients through a broadcast.
-
-
+The callback will run for every client message the socket receives, it is within this Closure you would initialise your app and based on the contents of the message payload send response/s.
