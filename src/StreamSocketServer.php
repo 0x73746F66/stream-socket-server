@@ -249,7 +249,7 @@ final class StreamSocketServer {
    * @return bool
    */
   final public function getDebug(): bool {
-    return $this->debug;
+    return $this->debug ?? false;
   }
 
   /**
