@@ -5,6 +5,15 @@ Provides a bootstrapable server for WebSockets
 
 - php 7.0.x
 
+## Features
+
+- Support for WebSocket clients (via the W3c spec on HTTP/1.1 UPGRADE)
+- Accepts a standard TCP socket client connection
+- Capable of broadcasting to all client WebSockets from a cli input
+- Your PHP application can intercept all client messages and respond
+- Capable of server push, on-demand to any connected client
+- Exposes all server and client functionality to the PHP application
+
 ## Installation
 
 > This project will strictly follow semantic versions.
@@ -22,6 +31,21 @@ Simply add to your composer.json
 
 and run `composer install`
 
+## Configuration
+
+> All configuration arguments can be set using environment variables
+
+The `StreamSocketDaemon` constructor takes an array of arguments that will configure the following;
+
+- DEBUG: output will be displayed to help with debugging
+    - defaults: `false`
+- IP: defines the current machines public IP that a client will try to establish a socket connection to the server
+    - default: `127.0.0.1`
+- PORT: defines a port to bind to, to receive client socket requests
+    - default: `8082`
+- HOSTNAME: define a fully qualified domain name for this machine that a client will try to establish a socket connection to the server
+    - default: `localhost`
+
 ## Usage
 
 To use, create a bootstrap like this;
@@ -35,12 +59,19 @@ $daemon = new sockets\StreamSocketDaemon(/*$config*/);
 $daemon->startStreamSocketServer(function($data, $client, $server){
   // All client messages can be caught here
   // use $server to manage the stream socket server status
-  // Clients can also be disconntected via the $server
+  // Clients can also be disconnected via the $server
   // Use $client to send responses or simply return it like this;
-  return 'data processed by the app';
+  return $data;
 });
 // this line is reached only when the server is stopped
 exit("server terminated at ".time());
 ```
 
 The callback will run for every client message the socket receives, it is within this Closure you would initialise your app and based on the contents of the message payload send response/s.
+
+## Road map
+
+- Close all connected client sockets manually on `Server::stop` instead of trusting PHP object destruct which may not fire at the expected moment
+- Add capability to establish a UDP socket
+- Add an example of a standard JavaScript `WebSocket` client
+- Expose a method return a Client construct for a `Client::id`
