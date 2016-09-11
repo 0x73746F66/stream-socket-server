@@ -117,7 +117,7 @@ class StreamSocketServer {
   public function broadcast($data) {
     echo "[INFO][".__CLASS__."::".__FUNCTION__."] " . time() . "\n";
     foreach ($this->clients as $client) {
-      if (!$client::respond($data)) {
+      if (!$client($data)) {
         $this->removeClient($client);
       }
     }
@@ -141,7 +141,7 @@ class StreamSocketServer {
   protected function processMessage(array $data, ClientStreamSocket &$client) {
     echo "[INFO][".__CLASS__."::".__FUNCTION__."] " . time() . "\n";
     $responseData = call_user_func($this->_callback, $data, $client) ?? false;
-    if (!empty($responseData) && !$client::respond($responseData)) {
+    if (!empty($responseData) && !$client($responseData)) {
       $this->removeClient($client);
     }
   }

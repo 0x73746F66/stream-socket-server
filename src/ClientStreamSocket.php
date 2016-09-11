@@ -34,14 +34,26 @@ class ClientStreamSocket {
   }
 
   public function __invoke($response) {
-    return static::respond($response);
+    if (is_string($response)) {
+      $this->sendText($response);
+    } elseif (is_array($response)) {
+      $this->sendJSON($response);
+    }
   }
 
-  public static function respond($response): bool {
+  public function sendText($response): bool {
     if (stream_socket_sendto($this->handle, static::_encode($response)) === -1) {
       return false;
     }
     return true;
+  }
+
+  public function sendJSON(array $response) {
+    stream_socket_sendto($this->handle,
+                         static::_encode(json_encode($response,
+                                                     JSON_ERROR_INF_OR_NAN |
+                                                     JSON_NUMERIC_CHECK |
+                                                     JSON_PRESERVE_ZERO_FRACTION)));
   }
 
   public function validateWebSocket() {
@@ -60,14 +72,6 @@ class ClientStreamSocket {
                           . "Sec-WebSocket-Accept: " . base64_encode(sha1($this->_SecWebSocketKey . self::MAGIC, true))
                           . "\r\n\r\n");
 
-  }
-
-  public function send(array $response) {
-    stream_socket_sendto($this->handle,
-                         static::_encode(json_encode($response,
-                                                     JSON_ERROR_INF_OR_NAN |
-                                                     JSON_NUMERIC_CHECK |
-                                                     JSON_PRESERVE_ZERO_FRACTION)));
   }
 
   public function getDataRaw() {

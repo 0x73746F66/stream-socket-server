@@ -1,11 +1,11 @@
 # php-stream-socket-server
 Provides a bootstrapable server for WebSockets
 
-## requirements
+## Requirements
 
 - php 7.0.x
 
-## installation
+## Installation
 
 Simply add to your composer.json
 
@@ -17,6 +17,8 @@ Simply add to your composer.json
   }
 }
 ```
+
+and run `composer install`
 
 ## Usage
 
