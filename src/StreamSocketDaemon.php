@@ -4,7 +4,7 @@ namespace sockets;
 
 /**
  * Class StreamSocketDaemon
- * @package sockets
+ * @package sockets/php-stream-socket-server
  */
 class StreamSocketDaemon {
   /**
@@ -48,9 +48,9 @@ class StreamSocketDaemon {
   }
 
   /**
-   * @param      $signo
-   * @param null $pid
-   * @param null $status
+   * @param $signo
+   * @param $pid
+   * @param $status
    * @return bool
    */
   public function childSignalHandler($signo, $pid = null, $status = null) {
@@ -75,11 +75,7 @@ class StreamSocketDaemon {
     return true;
   }
 
-  /**
-   *
-   */
   function __destruct() {
     echo "[INFO][".__CLASS__."::".__FUNCTION__."] Thread closing\n";
-    exit(0);
   }
 }

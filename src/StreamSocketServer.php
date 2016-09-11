@@ -4,7 +4,7 @@ namespace sockets;
 
 /**
  * Class StreamSocketServer
- * @package sockets
+ * @package sockets/php-stream-socket-server
  */
 final class StreamSocketServer {
   const U_SLEEP = 20;
@@ -13,7 +13,7 @@ final class StreamSocketServer {
    */
   protected $clients = [];
   /**
-   * @var
+   * @var resource
    */
   protected $server;
   /**
@@ -116,9 +116,6 @@ final class StreamSocketServer {
     return $this;
   }
 
-  /**
-   *
-   */
   final public function listen() {
     if ($this->isRunning()){
       if ($h = @stream_socket_accept($this->server, -1)) {
@@ -280,6 +277,5 @@ final class StreamSocketServer {
     if ($this->getDebug()) {
       echo "[INFO][".__CLASS__."::".__FUNCTION__."] Thread closing\n";
     }
-    exit(0);
   }
 }

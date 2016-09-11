@@ -2,20 +2,52 @@
 declare(strict_types = 1);
 namespace sockets;
 
-class ClientStreamSocket {
+/**
+ * Class ClientStreamSocket
+ * @package sockets/php-stream-socket-server
+ */
+final class ClientStreamSocket {
   const MAGIC = '258EAFA5-E914-47DA-95CA-C5AB0DC85B11';
   const MAX_INCOMING_MSG_LENGTH = 1048576;
+  /**
+   * @var string
+   */
   public $jobId;
+  /**
+   * @var string
+   */
   private $_SecWebSocketKey;
+  /**
+   * @var bool
+   */
   public $isWebSocket;
+  /**
+   * @var array
+   */
   private $_status;
   protected $handle;
+  /**
+   * @var string
+   */
   protected $headers;
+  /**
+   * @var int
+   */
   protected $lastDataLength = 0;
+  /**
+   * @var mixed
+   */
   protected $data;
+  /**
+   * @var Client
+   */
   protected $client;
 
-  function __construct(&$handle) {
+  /**
+   * ClientStreamSocket constructor.
+   * @param $handle
+   */
+  final public function __construct(&$handle) {
     $type = null;
     try {
       $type = get_resource_type($handle);
@@ -35,15 +67,23 @@ class ClientStreamSocket {
     $this->client = new Client($this, $this->_status);
   }
 
-  public function __invoke($response) {
+  /**
+   * @param $response
+   * @return bool
+   */
+  final public function __invoke($response): bool {
     if (is_string($response)) {
-      $this->client->sendText($response);
+      return $this->client->sendText($response);
     } elseif (is_array($response)) {
-      $this->client->sendJSON($response);
+      return $this->client->sendJSON($response);
     }
+    return false;
   }
 
-  public function validateWebSocket() {
+  /**
+   * @return bool
+   */
+  final public function validateWebSocket(): bool {
     if (is_string($this->headers) && preg_match('#^Sec-WebSocket-Key: (\S+)#mi', $this->headers, $match)) {
       $this->_SecWebSocketKey = $match[1];
       $this->isWebSocket = true;
@@ -52,40 +92,61 @@ class ClientStreamSocket {
     return false;
   }
 
-  public function upgradeWebSocket() {
+  final public function upgradeWebSocket(): ClientStreamSocket {
     fwrite($this->handle, "HTTP/1.1 101 Switching Protocols\r\n"
                           . "Upgrade: websocket\r\n"
                           . "Connection: Upgrade\r\n"
                           . "Sec-WebSocket-Accept: " . base64_encode(sha1($this->_SecWebSocketKey . self::MAGIC, true))
                           . "\r\n\r\n");
-
+    return $this;
   }
 
-  public function getDataRaw() {
+  /**
+   * @return mixed
+   */
+  final public function getDataRaw() {
     return $this->data;
   }
 
-  public function getData() {
+  /**
+   * @return mixed
+   */
+  final public function getData() {
     return json_decode($this->data);
   }
 
-  public function getClient(): Client {
+  /**
+   * @return Client
+   */
+  final public function getClient(): Client {
     return $this->client;
   }
 
-  public function getJobId(): string {
+  /**
+   * @return string
+   */
+  final public function getJobId(): string {
     return $this->jobId;
   }
 
-  public function getHeaders(): string {
+  /**
+   * @return string
+   */
+  final public function getHeaders(): string {
     return $this->headers;
   }
 
-  public function getLastDataLength(): int {
+  /**
+   * @return int
+   */
+  final public function getLastDataLength(): int {
     return $this->lastDataLength;
   }
 
-  public function pendingMessage() {
+  /**
+   * @return bool
+   */
+  final public function pendingMessage(): bool {
     $this->_status = socket_get_status($this->handle);
     $this->client->setStatus($this->_status);
     if ($this->isWebSocket) {
@@ -104,16 +165,26 @@ class ClientStreamSocket {
     return false;
   }
 
-  public function getHandle() {
+  /**
+   * @return mixed
+   */
+  final public function getHandle() {
     return $this->handle;
   }
 
+  /**
+   *
+   */
   final public function disconnect(){
     fclose($this->handle);
-    exit(0);
+    exit(0); //Closes the child process
   }
 
-  final static public function _decode($frame) {
+  /**
+   * @param string $frame
+   * @return string
+   */
+  final static public function _decode(string $frame): string {
     $len = ord($frame[1]) & 127;
     if ($len === 126) {
       $ofs = 8;
@@ -130,7 +201,11 @@ class ClientStreamSocket {
     return $text;
   }
 
-  final static public function _encode($text) {
+  /**
+   * @param string $text
+   * @return string
+   */
+  final static public function _encode(string $text): string {
     $b   = 129; // FIN + text frame
     $len = strlen($text);
     if ($len < 126) {
