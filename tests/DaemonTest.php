@@ -5,7 +5,7 @@ use sockets\StreamSocketDaemon;
 class DaemonTest extends TestCase {
 
   public function testInit() {
-    $d = new StreamSocketDaemon();
+    $daemon = new StreamSocketDaemon();
 
     $this->assertInternalType('int', $d->parentPID);
   }
