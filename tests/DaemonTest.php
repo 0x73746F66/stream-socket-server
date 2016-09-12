@@ -7,6 +7,6 @@ class DaemonTest extends TestCase {
   public function testInit() {
     $daemon = new StreamSocketDaemon();
 
-    $this->assertInternalType('int', $d->parentPID);
+    $this->assertInternalType('int', $daemon->parentPID);
   }
 }
