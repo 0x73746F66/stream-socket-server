@@ -1,4 +1,8 @@
 <?php
+$vendorAutoload = realpath(str_replace('/examples', '/vendor', dirname(__FILE__))).'/autoload.php';
+if (file_exists($vendorAutoload)) {
+  include_once $vendorAutoload;
+}
 define('PROJECT_ROOT', realpath(str_replace('/examples', '/src', dirname(__FILE__))) . DIRECTORY_SEPARATOR );
 $current = spl_autoload_extensions();
 spl_autoload_extensions($current);
