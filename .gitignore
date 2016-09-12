@@ -11,3 +11,6 @@
 
 # Composer PHAR
 /composer.phar
+
+# Jetbrains
+.idea
