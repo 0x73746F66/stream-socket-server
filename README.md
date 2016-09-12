@@ -79,7 +79,5 @@ The callback will run for every client message the socket receives, it is within
 
 ## Road map
 
-- Close all connected client sockets manually on `Server::stop` instead of trusting PHP object destruct which may not fire at the expected moment
 - Add capability to establish a UDP socket
 - Add an example of a standard JavaScript `WebSocket` client
-- Expose a method return a Client construct for a `Client::id`

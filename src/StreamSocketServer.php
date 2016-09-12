@@ -169,6 +169,7 @@ final class StreamSocketServer
     /**
      * @param $data
      * @return bool
+     * @internal ClientStreamSocket $client
      */
     final public function broadcast($data): bool
     {
@@ -280,17 +281,34 @@ final class StreamSocketServer
 
     /**
      * @return StreamSocketServer
+     * @internal ClientStreamSocket $client
      */
     final public function stop(): StreamSocketServer
     {
+        foreach ($this->clients as $client) {
+            $client->disconnect();
+        }
+        $this->clients = [];
         fclose($this->server);
         $this->server = false;
         return $this;
     }
 
     /**
-     *
+     * @param string $jobId
+     * @return Client|bool
+     * @internal ClientStreamSocket $client
      */
+    final public function getClientByJobId(string $jobId)
+    {
+        foreach ($this->clients as $k => $client) {
+            if ($client->jobId === $jobId) {
+                return $this->clients[$k]->getClient();
+            }
+        }
+        return false;
+    }
+
     final public function __destruct()
     {
         if ($this->getDebug()) {

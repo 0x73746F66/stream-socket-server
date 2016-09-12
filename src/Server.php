@@ -19,7 +19,7 @@ final class Server implements iServer
      */
     final public function __construct(StreamSocketServer &$streamSocketServer)
     {
-        $this->streamSocketServer = $streamSocketServer;
+        $this->streamSocketServer = &$streamSocketServer;
     }
 
     /**
@@ -44,8 +44,16 @@ final class Server implements iServer
      */
     final public function broadcast($data): bool
     {
-        echo "[INFO][" . __CLASS__ . "::" . __FUNCTION__ . "] " . time() . "\n";
         return $this->streamSocketServer->broadcast($data);
+    }
+
+    /**
+     * @param string $clientId
+     * @return bool|Client
+     */
+    final public function getClient(string $clientId)
+    {
+        return $this->streamSocketServer->getClientByJobId($clientId);
     }
 
     /**
