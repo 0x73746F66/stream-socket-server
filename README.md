@@ -1,10 +1,10 @@
-[![Build Status](https://travis-ci.org/chrisdlangton/php-stream-socket-server.svg?branch=master)](https://travis-ci.org/chrisdlangton/php-stream-socket-server)
 [![PHP version](https://badge.fury.io/ph/sockets%2Fphp-stream-socket-server.svg)](https://badge.fury.io/ph/sockets%2Fphp-stream-socket-server)
-[![PHPPackages Rank](http://phppackages.org/p/sockets/php-stream-socket-server/badge/rank.svg)](http://phppackages.org/p/sockets/php-stream-socket-server)
-[![PHPPackages Referenced By](http://phppackages.org/p/sockets/php-stream-socket-server/badge/referenced-by.svg)](http://phppackages.org/p/sockets/php-stream-socket-server)
+[![Build Status](https://travis-ci.org/chrisdlangton/php-stream-socket-server.svg?branch=master)](https://travis-ci.org/chrisdlangton/php-stream-socket-server)
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/52af35bac9b44ab890f4d6a08d4e65c9)](https://www.codacy.com/app/chrislangton84/php-stream-socket-server?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=chrisdlangton/php-stream-socket-server&amp;utm_campaign=Badge_Grade)
 ![Package Size](https://reposs.herokuapp.com/?path=chrisdlangton/php-stream-socket-server&style=flat)
 [![Dependency Status](https://www.versioneye.com/user/projects/57d6475c87b0f6003c14c523/badge.svg?style=flat-square)](https://www.versioneye.com/user/projects/57d6475c87b0f6003c14c523)
-[![Codacy Badge](https://api.codacy.com/project/badge/Grade/52af35bac9b44ab890f4d6a08d4e65c9)](https://www.codacy.com/app/chrislangton84/php-stream-socket-server?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=chrisdlangton/php-stream-socket-server&amp;utm_campaign=Badge_Grade)
+[![PHPPackages Rank](http://phppackages.org/p/sockets/php-stream-socket-server/badge/rank.svg)](http://phppackages.org/p/sockets/php-stream-socket-server)
+[![PHPPackages Referenced By](http://phppackages.org/p/sockets/php-stream-socket-server/badge/referenced-by.svg)](http://phppackages.org/p/sockets/php-stream-socket-server)
 
 # php-stream-socket-server
 Provides a bootstrapable server for WebSockets
