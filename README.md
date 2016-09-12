@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/chrisdlangton/php-stream-socket-server.svg?branch=master)](https://travis-ci.org/chrisdlangton/php-stream-socket-server)
+
 # php-stream-socket-server
 Provides a bootstrapable server for WebSockets
 
