@@ -23,7 +23,8 @@
     "wiki": "https://github.com/chrisdlangton/php-stream-socket-server/wiki"
   },
   "require": {
-    "php": "^7.0"
+    "php": "^7.0",
+    "ext-pcntl": "*"
   },
   "require-dev": {
     "phpunit/phpunit": "5.5.*"
