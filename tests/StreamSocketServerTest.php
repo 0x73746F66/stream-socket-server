@@ -1,21 +1,22 @@
 <?php
+/*
+ * Untestable due to intended design;
+ * StreamSocketServer::listen - It is a recursive function with no input or return value, and also a blocking process.
+ * StreamSocketServer::launchJob - forks into a child process, also with no input or return value
+ */
 use PHPUnit\Framework\TestCase;
 use sockets\StreamSocketServer;
 
 class StreamSocketServerTest extends TestCase {
   const EPHEMERAL_PORT = 0;
   protected $streamSocketServer;
-  /*
-   * Untestable due to intended design;
-   * StreamSocketServer::listen - It is a recursive function with no input or return value, and also a blocking process.
-   * StreamSocketServer::launchJob - forks into a child process, also with no input or return value
-   */
-  public function __construct() {
+  public function __construct($name = null, array $data = [], $dataName = '') {
+    parent::__construct($name, $data, $dataName);
     $this->streamSocketServer = new StreamSocketServer([
-      'PORT' => self::EPHEMERAL_PORT  
+      'PORT' => self::EPHEMERAL_PORT
     ]);
   }
-  
+
   public function testInstance() {
     $this->assertInstanceOf('sockets\\StreamSocketServer', $this->streamSocketServer);
   }
