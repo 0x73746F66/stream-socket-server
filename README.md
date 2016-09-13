@@ -15,7 +15,7 @@ Provides a bootstrapable server for WebSockets
 
 ## Features
 
-- Support for WebSocket clients (via the W3c spec on HTTP/1.1 UPGRADE)
+- Support for WebSocket clients [via HTTP/1.1 UPGRADE](https://tools.ietf.org/html/rfc2817)
 - Accepts a standard TCP socket client connection
 - Capable of broadcasting to all client WebSockets from a cli input
 - Your PHP application can intercept all client messages and respond
