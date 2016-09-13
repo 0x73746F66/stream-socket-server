@@ -15,21 +15,24 @@ final class ClientStreamSocket
      */
     public $jobId;
     /**
+     * @var bool
+     */
+    public $isWebSocket;
+    /**
      * @var string
      */
-    protected $peer;
+    private $peer;
     /**
      * @var string
      */
     private $_SecWebSocketKey;
     /**
-     * @var bool
-     */
-    public $isWebSocket;
-    /**
      * @var array
      */
     private $_status;
+    /**
+     * @var resource
+     */
     protected $handle;
     /**
      * @var string
@@ -227,6 +230,21 @@ final class ClientStreamSocket
         return $this->handle;
     }
 
+    /**
+     * @return string
+     */
+    public function getPeer(): string
+    {
+        return $this->peer;
+    }
+
+    /**
+     * @return array
+     */
+    public function getStatus(): array
+    {
+        return $this->_status;
+    }
 
     /**
      * @return bool
