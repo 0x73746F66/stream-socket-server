@@ -29,7 +29,7 @@ final class ClientStreamSocket
     /**
      * @var array
      */
-    private $_status;
+    private $_status = [];
     /**
      * @var resource
      */
