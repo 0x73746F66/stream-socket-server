@@ -16,7 +16,7 @@ final class StreamSocketServer
     /**
      * @var resource
      */
-    protected $server;
+    protected $server = false;
     /**
      * @var array
      */
@@ -285,12 +285,14 @@ final class StreamSocketServer
      */
     final public function stop(): StreamSocketServer
     {
-        foreach ($this->clients as $client) {
-            $client->disconnect();
+        if ($this->isRunning()) {
+            foreach ($this->clients as $client) {
+                $client->disconnect();
+            }
+            $this->clients = [];
+            fclose($this->server);
+            $this->server = false;
         }
-        $this->clients = [];
-        fclose($this->server);
-        $this->server = false;
         return $this;
     }
 
