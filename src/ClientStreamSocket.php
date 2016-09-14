@@ -53,7 +53,6 @@ final class ClientStreamSocket
 
     /**
      * ClientStreamSocket constructor.
-     * @param $handle
      */
     final public function __construct()
     {

@@ -33,7 +33,7 @@ class StreamSocketDaemon
      * StreamSocketDaemon constructor.
      * @param array $serverConfig $config for StreamSocketServer
      */
-    function __construct(array $serverConfig = [])
+    public function __construct(array $serverConfig = [])
     {
         $this->parentPID = getmypid();
         pcntl_signal(SIGCHLD, [$this, "childSignalHandler"]);
@@ -85,7 +85,7 @@ class StreamSocketDaemon
         return true;
     }
 
-    function __destruct()
+    public function __destruct()
     {
         if ($this->server->getDebug()) {
             echo "[INFO][" . __CLASS__ . "::" . __FUNCTION__ . "] Thread closing\n";
