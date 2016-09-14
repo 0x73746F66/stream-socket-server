@@ -8,10 +8,15 @@
          beStrictAboutTestsThatDoNotTestAnything="true"
          beStrictAboutTodoAnnotatedTests="true"
          verbose="true"
-         colors="true">
+         colors="true"
+         codecoverage="true">
     <testsuite>
         <directory suffix="Test.php">tests</directory>
     </testsuite>
+
+    <logging>
+        <log type="coverage-clover" target="/www/coverage.xml"/>
+    </logging>
 
     <filter>
         <whitelist processUncoveredFilesFromWhitelist="true">

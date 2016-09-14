@@ -1,10 +1,12 @@
 language: php
 sudo: false
+env:
+  - DEBUG=true
 php:
   - '7.0'
 install:
    - composer install
 script:
   - phpunit
-env:
-- DEBUG=true
+after_script:
+  - php vendor/bin/codacycoverage clover www/coverage.xml
