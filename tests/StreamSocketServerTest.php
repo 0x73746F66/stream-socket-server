@@ -2,6 +2,10 @@
 use PHPUnit\Framework\TestCase;
 use sockets\StreamSocketServer;
 
+/**
+ * Class StreamSocketServerTest
+ * @package sockets/php-stream-socket-server
+ */
 class StreamSocketServerTest extends TestCase
 {
     const EPHEMERAL_PORT = 0;

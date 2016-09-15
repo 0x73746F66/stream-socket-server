@@ -8,10 +8,10 @@ namespace sockets;
 interface iServer
 {
     /**
-     * iServer constructor.
      * @param StreamSocketServer $streamSocketServer
+     * @return Server
      */
-    public function __construct(StreamSocketServer &$streamSocketServer);
+    public function attachStreamSocketServer(StreamSocketServer &$streamSocketServer): Server;
 
     /**
      * @return bool

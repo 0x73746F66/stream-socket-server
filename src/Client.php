@@ -6,7 +6,7 @@ namespace sockets;
  * Class Client
  * @package sockets/php-stream-socket-server
  */
-final class Client implements iClient
+class Client implements iClient
 {
     /**
      * @var array

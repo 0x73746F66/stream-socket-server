@@ -6,7 +6,7 @@ namespace sockets;
  * Class StreamSocketServer
  * @package sockets/php-stream-socket-server
  */
-final class StreamSocketServer
+class StreamSocketServer
 {
     const U_SLEEP = 20;
     /**
@@ -233,7 +233,9 @@ final class StreamSocketServer
         if (!$this->isRunning()) {
             return false;
         }
-        $responseData = call_user_func($this->_callback, $data, $client->getClient(), new Server($this)) ?? false;
+        $server = new Server();
+        $server->attachStreamSocketServer($this);
+        $responseData = call_user_func($this->_callback, $data, $client->getClient(), $server) ?? false;
         if (!empty($responseData) && !$client($responseData)) {
             $this->removeClient($client);
         }

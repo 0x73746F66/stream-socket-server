@@ -3,6 +3,10 @@ use PHPUnit\Framework\TestCase;
 use sockets\Client;
 use sockets\ClientStreamSocket;
 
+/**
+ * Class ClientStreamSocketTest
+ * @package sockets/php-stream-socket-server
+ */
 class ClientStreamSocketTest extends TestCase
 {
     protected $clientStreamSocket;

@@ -6,7 +6,7 @@ namespace sockets;
  * Class ClientStreamSocket
  * @package sockets/php-stream-socket-server
  */
-final class ClientStreamSocket
+class ClientStreamSocket
 {
     const MAGIC                   = '258EAFA5-E914-47DA-95CA-C5AB0DC85B11';
     const MAX_INCOMING_MSG_LENGTH = 1048576; //1mb
