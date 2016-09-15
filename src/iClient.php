@@ -9,10 +9,14 @@ interface iClient
 {
     /**
      * iClient constructor.
-     * @param ClientStreamSocket $clientStreamSocket
-     * @param array              $status
      */
-    public function __construct(ClientStreamSocket &$clientStreamSocket, array $status);
+    public function __construct();
+
+    /**
+     * @param ClientStreamSocket $clientStreamSocket
+     * @return Client
+     */
+    public function attachClientStreamSocket(ClientStreamSocket &$clientStreamSocket): Client;
 
     /**
      * @param $response

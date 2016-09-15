@@ -15,7 +15,7 @@
     </testsuite>
 
     <logging>
-        <log type="coverage-clover" target="/www/coverage.xml"/>
+        <log type="coverage-clover" target="www/coverage.xml"/>
     </logging>
 
     <filter>

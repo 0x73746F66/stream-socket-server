@@ -21,16 +21,18 @@ final class Client implements iClient
      */
     protected $clientStreamSocket;
 
+    final public function __construct() { }
+
     /**
-     * Client constructor.
      * @param ClientStreamSocket $clientStreamSocket
-     * @param array              $status
+     * @return Client
      */
-    final public function __construct(ClientStreamSocket &$clientStreamSocket, array $status)
+    final public function attachClientStreamSocket(ClientStreamSocket &$clientStreamSocket): Client
     {
         $this->clientStreamSocket = &$clientStreamSocket;
-        $this->status = $status;
         $this->id = $clientStreamSocket->getJobId();
+
+        return $this;
     }
 
     /**
@@ -114,5 +116,4 @@ final class Client implements iClient
         $this->status = $status;
         return $this;
     }
-
 }

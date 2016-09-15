@@ -128,7 +128,7 @@ final class StreamSocketServer
     {
         if ($this->isRunning()) {
             if ($handle = @stream_socket_accept($this->server, -1)) {
-                $client = new ClientStreamSocket();
+                $client = new ClientStreamSocket(new Client());
                 $client->attachClientHandle($handle);
                 if ($this->getDebug()) {
                     echo "[INFO][" . __CLASS__ . "::" . __FUNCTION__ . "] received client socket {$client->jobId}\n";

@@ -66,14 +66,12 @@ class StreamSocketDaemon
             if ($pid && isset($this->currentJobs[$pid])) {
                 $exitCode = pcntl_wexitstatus($status);
                 if ($exitCode != 0) {
-                    error_log("[INFO][" . __CLASS__ . "::" . __FUNCTION__ . "] $pid exited with status $exitCode");
                     if ($this->server->getDebug()) {
                         echo "[INFO][" . __CLASS__ . "::" . __FUNCTION__ . "] $pid exited with status $exitCode\n";
                     }
                 }
                 unset($this->currentJobs[$pid]);
             } elseif ($pid) {
-                error_log("[INFO][" . __CLASS__ . "::" . __FUNCTION__ . "] Adding $pid to the signal queue");
                 if ($this->server->getDebug()) {
                     echo "[INFO][" . __CLASS__ . "::" . __FUNCTION__ . "] Adding $pid to the signal queue\n";
                 }
