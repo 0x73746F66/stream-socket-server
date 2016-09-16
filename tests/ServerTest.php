@@ -49,17 +49,33 @@ class ServerTest extends TestCase
      * @covers \sockets\Server::attachStreamSocketServer()
      * @covers \sockets\Server::start()
      */
-    // public function testStart()
-    // {
-    //     $mock = $this->getMockBuilder('sockets\StreamSocketServer')
-    //                  ->disableOriginalConstructor()
-    //                  ->getMock();
-    //     $mock->method('start')
-    //          ->will($this->returnSelf());
-    //     $mock->method('isRunning')
-    //          ->willReturn(true);
-    //     $this->server->attachStreamSocketServer($mock);
+    public function testStart()
+    {
+        $mock = $this->getMockBuilder('sockets\StreamSocketServer')
+                     ->getMock();
+        $mock->method('start')
+             ->will($this->returnSelf());
+        $mock->method('isRunning')
+             ->willReturn(true);
+        $this->server->attachStreamSocketServer($mock);
         
-    //     $this->assertTrue($this->server->start());
-    // }
+        $this->assertTrue($this->server->start());
+    }
+    /**
+     * @covers \sockets\Server::__construct()
+     * @covers \sockets\Server::attachStreamSocketServer()
+     * @covers \sockets\Server::stop()
+     */
+    public function testStop()
+    {
+        $mock = $this->getMockBuilder('sockets\StreamSocketServer')
+                     ->getMock();
+        $mock->method('start')
+             ->will($this->returnSelf());
+        $mock->method('isStopped')
+             ->willReturn(true);
+        $this->server->attachStreamSocketServer($mock);
+        
+        $this->assertTrue($this->server->stop());
+    }
 }
