@@ -4,7 +4,8 @@
 ![Package Size](https://reposs.herokuapp.com/?path=chrisdlangton/php-stream-socket-server&style=flat)
 [![Dependency Status](https://www.versioneye.com/user/projects/57d6475c87b0f6003c14c523/badge.svg?style=flat-square)](https://www.versioneye.com/user/projects/57d6475c87b0f6003c14c523)
 [![PHPPackages Rank](http://phppackages.org/p/sockets/php-stream-socket-server/badge/rank.svg)](http://phppackages.org/p/sockets/php-stream-socket-server)
-[![PHPPackages Referenced By](http://phppackages.org/p/sockets/php-stream-socket-server/badge/referenced-by.svg)](http://phppackages.org/p/sockets/php-stream-socket-server)
+
+Packagist: https://packagist.org/packages/sockets/php-stream-socket-server
 
 # php-stream-socket-server
 Provides a bootstrapable server for WebSockets
