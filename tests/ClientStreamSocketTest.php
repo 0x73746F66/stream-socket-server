@@ -74,6 +74,7 @@ class ClientStreamSocketTest extends TestCase
 
     /**
      * @covers \sockets\ClientStreamSocket::__construct()
+     * @covers \sockets\ClientStreamSocket::getDebug()
      * @covers \sockets\ClientStreamSocket::isConnected()
      * @covers \sockets\ClientStreamSocket::isClosed()
      * @covers \sockets\ClientStreamSocket::disconnect()
@@ -87,6 +88,7 @@ class ClientStreamSocketTest extends TestCase
     }
     /**
      * @covers \sockets\ClientStreamSocket::__construct()
+     * @covers \sockets\ClientStreamSocket::getDebug()
      * @covers \sockets\ClientStreamSocket::getStatus()
      * @covers \sockets\ClientStreamSocket::setStatus()
      * @covers \sockets\ClientStreamSocket::getClient()
@@ -102,6 +104,7 @@ class ClientStreamSocketTest extends TestCase
 
     /**
      * @covers \sockets\ClientStreamSocket::__construct()
+     * @covers \sockets\ClientStreamSocket::getDebug()
      * @covers \sockets\ClientStreamSocket::validateWebSocket()
      * @covers \sockets\ClientStreamSocket::setHeaders()
      * @covers \sockets\ClientStreamSocket::getHeaders()
@@ -118,6 +121,7 @@ class ClientStreamSocketTest extends TestCase
 
     /**
      * @covers \sockets\ClientStreamSocket::__construct()
+     * @covers \sockets\ClientStreamSocket::getDebug()
      * @covers \sockets\ClientStreamSocket::validateWebSocket()
      * @covers \sockets\ClientStreamSocket::setHeaders()
      * @covers \sockets\ClientStreamSocket::getHeaders()
@@ -143,6 +147,7 @@ class ClientStreamSocketTest extends TestCase
     }
     /**
      * @covers \sockets\ClientStreamSocket::__construct()
+     * @covers \sockets\ClientStreamSocket::getDebug()
      * @covers \sockets\ClientStreamSocket::pendingMessage()
      * @covers \sockets\ClientStreamSocket::getClient()
      * @covers \sockets\ClientStreamSocket::getHandle()
@@ -179,6 +184,7 @@ class ClientStreamSocketTest extends TestCase
     }
     /**
      * @covers \sockets\ClientStreamSocket::__construct()
+     * @covers \sockets\ClientStreamSocket::getDebug()
      * @covers \sockets\ClientStreamSocket::setPeer()
      * @covers \sockets\ClientStreamSocket::getPeer()
      * @covers \sockets\ClientStreamSocket::getClient()

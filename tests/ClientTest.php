@@ -9,9 +9,7 @@ use sockets\Client;
 class ClientTest extends TestCase
 {
     protected $client;
-    /**
-     * @covers \sockets\Client::__construct()
-     */
+
     public function setup()
     {
         $this->client = new Client();
@@ -22,9 +20,6 @@ class ClientTest extends TestCase
         unset($this->client);
     }
 
-    /**
-     * @covers \sockets\Client::__construct()
-     */
     public function testInstance()
     {
         $this->assertInstanceOf('sockets\\Client', $this->client);

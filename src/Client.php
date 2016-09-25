@@ -15,13 +15,15 @@ class Client implements iClient
     /**
      * @var string
      */
+    public $data;
+    /**
+     * @var string
+     */
     public $id;
     /**
      * @var ClientStreamSocket
      */
     protected $clientStreamSocket;
-
-    final public function __construct() { }
 
     /**
      * @param ClientStreamSocket $clientStreamSocket
@@ -30,53 +32,131 @@ class Client implements iClient
     final public function attachClientStreamSocket(ClientStreamSocket &$clientStreamSocket): Client
     {
         $this->clientStreamSocket = &$clientStreamSocket;
-        $this->id = $clientStreamSocket->getJobId();
+        $this->id                 = $clientStreamSocket->getJobId();
 
         return $this;
     }
 
     /**
-     * @param $response
+     * @param array|object|string $response
+     * @param bool                $includeMeta
      * @return bool
      */
-    final public function __invoke($response): bool
+    final public function __invoke($response, bool $includeMeta = true): bool
     {
-        if (is_string($response)) {
+        if (is_string($response) && self::isJson($response)) {
+            return $this->sendJSON(json_decode($response, true));
+        } elseif (is_string($response)) {
             return $this->sendText($response);
         } elseif (is_array($response)) {
             return $this->sendJSON($response);
         }
+
         return false;
     }
 
     /**
-     * @param $response
+     * @param mixed $string
      * @return bool
      */
-    final public function sendText($response): bool
+    public static function isJson($string): bool
     {
-        if (@stream_socket_sendto($this->clientStreamSocket->getHandle(),
-                ClientStreamSocket::_encode($response)) === -1
+        return !empty($string) && is_string($string) && is_array(json_decode($string, true)) && json_last_error() == 0;
+    }
+
+    /**
+     * @param string $response
+     * @param bool   $includeMeta
+     * @return bool
+     */
+    final public function sendText(string $response, bool $includeMeta = true): bool
+    {
+        $data = $includeMeta ? [
+            '@meta'   => [
+                '_key' => $this->getId(),
+            ],
+            'message' => $response,
+        ]: $response;
+        if ($this->isJson($this->getDataRaw()) && array_key_exists('@meta', $this->getData())) {
+            $meta = $this->getData();
+            if (array_key_exists('_id', $meta['@meta'])) {
+                $data['@meta']['_id'] = $meta['@meta']['_id'];
+            }
+            if (array_key_exists('_getrusage', $meta['@meta'])) {
+                $ru  = getrusage();
+                $rus = $meta['@meta']['_getrusage'];
+                unset($meta['@meta']['_getrusage']);
+                $data['@meta']['_timings'] = [
+                    'process' => ($ru["ru_utime.tv_sec"] * 1000 + intval($ru["ru_utime.tv_usec"] / 1000))
+                                 - ($rus["ru_utime.tv_sec"] * 1000 + intval($rus["ru_utime.tv_usec"] / 1000)),
+                    'system'  => ($ru["ru_stime.tv_sec"] * 1000 + intval($ru["ru_stime.tv_usec"] / 1000))
+                                 - ($rus["ru_stime.tv_sec"] * 1000 + intval($rus["ru_stime.tv_usec"] / 1000)),
+                ];
+            }
+        }
+        if (@stream_socket_sendto(
+                $this->clientStreamSocket->getHandle(),
+                ClientStreamSocket::_encode(
+                    $includeMeta ? json_encode(
+                        $data,
+                        JSON_ERROR_INF_OR_NAN |
+                        JSON_NUMERIC_CHECK |
+                        JSON_PRESERVE_ZERO_FRACTION
+                    ): $data
+                )
+            ) === -1
         ) {
             return false;
         }
+
         return true;
     }
 
     /**
      * @param array $response
+     * @param bool  $includeMeta
      * @return bool
      */
-    final public function sendJSON(array $response): bool
+    final public function sendJSON(array $response, bool $includeMeta = true): bool
     {
-        if (@stream_socket_sendto($this->clientStreamSocket->getHandle(),
-                ClientStreamSocket::_encode(json_encode($response,
-                    JSON_ERROR_INF_OR_NAN |
-                    JSON_NUMERIC_CHECK |
-                    JSON_PRESERVE_ZERO_FRACTION))) === -1
+        $data = $includeMeta ? [
+            '@meta'   => [
+                '_key' => $this->getId(),
+            ],
+            'message' => $response,
+        ]: $response;
+        if ($this->isJson($this->getDataRaw()) && array_key_exists('@meta', $this->getData())) {
+            $meta = $this->getData();
+            if (array_key_exists('_id', $meta['@meta'])) {
+                $data['@meta']['_id'] = $meta['@meta']['_id'];
+            }
+            if (array_key_exists('_getrusage', $meta['@meta'])) {
+                $ru  = getrusage();
+                $rus = $meta['@meta']['_getrusage'];
+                unset($meta['@meta']['_getrusage']);
+                $data['@meta']['_timings'] = [
+                    'process' => ($ru["ru_utime.tv_sec"] * 1000 + intval($ru["ru_utime.tv_usec"] / 1000))
+                                 - ($rus["ru_utime.tv_sec"] * 1000 + intval($rus["ru_utime.tv_usec"] / 1000)),
+                    'system'  => ($ru["ru_stime.tv_sec"] * 1000 + intval($ru["ru_stime.tv_usec"] / 1000))
+                                 - ($rus["ru_stime.tv_sec"] * 1000 + intval($rus["ru_stime.tv_usec"] / 1000)),
+                ];
+            }
+        }
+        if (@stream_socket_sendto(
+                $this->clientStreamSocket->getHandle(),
+                ClientStreamSocket::_encode(
+                    json_encode(
+                        $data,
+                        JSON_ERROR_INF_OR_NAN |
+                        JSON_NUMERIC_CHECK |
+                        JSON_PRESERVE_ZERO_FRACTION
+                    )
+                )
+            ) === -1
         ) {
             return false;
         }
+
         return true;
     }
 
@@ -100,9 +180,36 @@ class Client implements iClient
     }
 
     /**
+     * @return array|object|string
+     */
+    public function getData(): array
+    {
+        return json_decode($this->getDataRaw(), true) ?? [];
+    }
+
+    /**
+     * @return string
+     */
+    public function getDataRaw(): string
+    {
+        return $this->data ?? '';
+    }
+
+    /**
+     * @param string $data
+     * @return Client
+     */
+    public function setData(string $data): Client
+    {
+        $this->data = $data;
+
+        return $this;
+    }
+
+    /**
      * @return array
      */
-    final public function getStatus(): array
+    public function getStatus(): array
     {
         return $this->status;
     }
@@ -111,9 +218,10 @@ class Client implements iClient
      * @param array $status
      * @return Client
      */
-    final public function setStatus(array $status): Client
+    public function setStatus(array $status): Client
     {
         $this->status = $status;
+
         return $this;
     }
 }

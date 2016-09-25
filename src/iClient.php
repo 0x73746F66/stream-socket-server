@@ -8,9 +8,10 @@ namespace sockets;
 interface iClient
 {
     /**
-     * iClient constructor.
+     * @param $string
+     * @return bool
      */
-    public function __construct();
+    public static function isJson($string): bool;
 
     /**
      * @param ClientStreamSocket $clientStreamSocket
@@ -25,10 +26,10 @@ interface iClient
     public function __invoke($response): bool;
 
     /**
-     * @param $response
+     * @param string $response
      * @return bool
      */
-    public function sendText($response) : bool;
+    public function sendText(string $response) : bool;
 
     /**
      * @param array $response
@@ -46,4 +47,31 @@ interface iClient
      * @return Client
      */
     public function setStatus(array $status): Client;
+
+    /**
+     * @return string
+     */
+    public function getId(): string;
+
+    /**
+     * @param string $id
+     * @return Client
+     */
+    public function setId(string $id): Client;
+
+    /**
+     * @return array
+     */
+    public function getData(): array;
+
+    /**
+     * @return string
+     */
+    public function getDataRaw(): string;
+
+    /**
+     * @param string $data
+     * @return Client
+     */
+    public function setData(string $data): Client;
 }

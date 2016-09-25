@@ -15,7 +15,7 @@ class ServerTest extends TestCase
 
     public function setup()
     {
-        $this->server = new Server();
+        $this->server = new Server(uniqid(), []);
     }
 
     public function tearDown()

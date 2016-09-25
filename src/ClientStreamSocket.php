@@ -19,6 +19,10 @@ class ClientStreamSocket
      */
     public $isWebSocket;
     /**
+     * @var bool
+     */
+    public $debug = false;
+    /**
      * @var string
      */
     private $peer;
@@ -57,7 +61,7 @@ class ClientStreamSocket
      */
     final public function __construct(Client $client)
     {
-        $this->jobId = uniqid();
+        $this->jobId  = uniqid();
         $this->client = $client;
     }
 
@@ -72,11 +76,11 @@ class ClientStreamSocket
         try {
             $type = get_resource_type($handle);
         } catch (\Throwable $e) {
-            error_log('[ERROR][' . __CLASS__ . '::' . __FUNCTION__ . '] requires a stream resource. exiting');
+            error_log('[ERROR]['.__CLASS__.'::'.__FUNCTION__.'] requires a stream resource. exiting');
             exit;
         }
         if ($type !== 'stream') {
-            error_log('[ERROR][' . __CLASS__ . '::' . __FUNCTION__ . '] requires a stream resource. exiting');
+            error_log('[ERROR]['.__CLASS__.'::'.__FUNCTION__.'] requires a stream resource. exiting');
             exit;
         }
         $this->handle = &$handle;
@@ -89,20 +93,80 @@ class ClientStreamSocket
     }
 
     /**
-     * @param $response
+     * @param string|object|array $response
+     * @param bool                $includeMeta
      * @return bool
      */
-    final public function __invoke($response): bool
+    final public function __invoke($response, bool $includeMeta = true): bool
     {
         if ($this->isConnected()) {
-            if (is_string($response)) {
-                return $this->getClient()->sendText($response);
+            $client = $this->getClient();
+            if (is_string($response) && $client::isJson($response)) {
+                return $client->sendJSON(json_decode($response, true), $includeMeta);
+            } elseif (is_string($response)) {
+                return $client->sendText($response, $includeMeta);
             } elseif (is_array($response)) {
-                return $this->getClient()->sendJSON($response);
+                return $client->sendJSON($response, $includeMeta);
             }
         }
 
         return false;
+    }
+
+    /**
+     * @param string $type
+     * @param string $message
+     * @return bool
+     */
+    final public function systemSend(string $type, string $message): bool
+    {
+        if ($this->isConnected()) {
+            $client = $this->getClient();
+            $data   = [
+                '@meta' => [
+                    '_type'   => $type,
+                    '_key'    => $this->getJobId(),
+                    '_system' => $client::isJson($message) ? json_decode($message, true): $message,
+                ],
+            ];
+            if (@stream_socket_sendto(
+                    $this->getHandle(),
+                    ClientStreamSocket::_encode(
+                        json_encode(
+                            $data,
+                            JSON_ERROR_INF_OR_NAN |
+                            JSON_NUMERIC_CHECK |
+                            JSON_PRESERVE_ZERO_FRACTION
+                        )
+                    )
+                ) === -1
+            ) {
+                return false;
+            }
+
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * @return bool
+     */
+    final public function getDebug(): bool
+    {
+        return $this->debug ?? false;
+    }
+
+    /**
+     * @param bool $debug
+     * @return ClientStreamSocket
+     */
+    final public function setDebug(bool $debug): ClientStreamSocket
+    {
+        $this->debug = $debug;
+
+        return $this;
     }
 
     /**
@@ -114,7 +178,7 @@ class ClientStreamSocket
         ) {
 
             $this->_SecWebSocketKey = $match[1];
-            $this->isWebSocket = true;
+            $this->isWebSocket      = true;
 
             return true;
         }
@@ -131,12 +195,13 @@ class ClientStreamSocket
             fwrite(
                 $this->getHandle(),
                 "HTTP/1.1 101 Switching Protocols\r\n"
-                . "Upgrade: websocket\r\n"
-                . "Connection: Upgrade\r\n"
-                . "Sec-WebSocket-Accept: " . base64_encode(sha1($this->_SecWebSocketKey . self::MAGIC, true))
-                . "\r\n\r\n"
+                ."Upgrade: websocket\r\n"
+                ."Connection: Upgrade\r\n"
+                ."Sec-WebSocket-Accept: ".base64_encode(sha1($this->_SecWebSocketKey.self::MAGIC, true))
+                ."\r\n\r\n"
             );
         }
+
         return $this;
     }
 
@@ -147,6 +212,7 @@ class ClientStreamSocket
     final public function setData(string $data): ClientStreamSocket
     {
         $this->data = $data;
+
         return $this;
     }
 
@@ -155,15 +221,15 @@ class ClientStreamSocket
      */
     final public function getDataRaw()
     {
-        return $this->data??'';
+        return $this->data ?? '';
     }
 
     /**
      * @return array|object|string
      */
-    final public function getData()
+    final public function getData(): array
     {
-        return json_decode($this->getDataRaw(), true);
+        return json_decode($this->getDataRaw(), true) ?? [];
     }
 
     /**
@@ -172,7 +238,7 @@ class ClientStreamSocket
     final public function getClient(): Client
     {
         if (!($this->client instanceof Client)) {
-            throw new \LogicException('Called ' . __CLASS__ . '::' . __FUNCTION__ . ' before assigning a Client');
+            throw new \LogicException('Called '.__CLASS__.'::'.__FUNCTION__.' before assigning a Client');
         }
 
         return $this->client;
@@ -206,7 +272,7 @@ class ClientStreamSocket
      */
     final public function getHeaders(): string
     {
-        return $this->headers??'';
+        return $this->headers ?? '';
     }
 
     /**
@@ -214,7 +280,7 @@ class ClientStreamSocket
      */
     final public function getLastDataLength(): int
     {
-        return $this->lastDataLength??0;
+        return $this->lastDataLength ?? 0;
     }
 
     /**
@@ -222,27 +288,54 @@ class ClientStreamSocket
      */
     final public function pendingMessage(): bool
     {
+        if ($this->getDebug()) {
+            echo "[INFO][".__CLASS__."::".__FUNCTION__."] ".time()."\n";
+        }
         if (!$this->isConnected()) {
             return false;
         }
         $this->setStatus();
         if ($this->isWebSocket) {
-            $stream = stream_socket_recvfrom($this->getHandle(), self::MAX_INCOMING_MSG_LENGTH);
-            $data = static::_decode($stream);
+            if ($this->getDebug()) {
+                echo "[INFO][".__CLASS__."::".__FUNCTION__."] new WebSocket message\n";
+            }
+            $stream    = stream_socket_recvfrom($this->getHandle(), self::MAX_INCOMING_MSG_LENGTH);
+            $getrusage = getrusage();
+            $data      = static::_decode($stream);
             if (strlen($data) !== $this->lastDataLength || $this->getDataRaw() != $data) {
                 $this->setData($data);
+                if ($this->getClient()->isJson($data) && array_key_exists('@meta', $this->getData())) {
+                    $metaData                        = $this->getData();
+                    $metaData['@meta']['_getrusage'] = $getrusage;
+                    $this->setData(
+                        json_encode(
+                            $metaData,
+                            JSON_ERROR_INF_OR_NAN |
+                            JSON_NUMERIC_CHECK |
+                            JSON_PRESERVE_ZERO_FRACTION
+                        )
+                    );
+                }
 
                 return true;
             }
         } else {
+            if ($this->getDebug()) {
+                echo "[INFO][".__CLASS__."::".__FUNCTION__."] new TCP message\n";
+            }
             $data = $this->getHeaders();
-            if (@stream_socket_sendto($this->getHandle(), $this->getPeer() . " ☚ (<‿<)☚\r\n") === -1) {
+            if (@stream_socket_sendto($this->getHandle(), $this->getPeer()." ☚ (<‿<)☚\r\n") === -1) {
+                if ($this->getDebug()) {
+                    echo "[INFO][".__CLASS__."::".__FUNCTION__."] DC\n";
+                }
                 $this->disconnect();
                 exit(0);
             }
             $this->data = $data;
 
             $this->setData($data);
+
+            return true;
         }
 
         return false;
@@ -253,7 +346,7 @@ class ClientStreamSocket
      */
     final public function getHandle()
     {
-        return is_resource($this->handle) ? $this->handle : false;
+        return is_resource($this->handle) ? $this->handle: false;
     }
 
     /**
@@ -267,6 +360,7 @@ class ClientStreamSocket
         } else {
             $this->peer = $peer;
         }
+
         return $this;
     }
 
@@ -315,7 +409,11 @@ class ClientStreamSocket
      */
     final public function isConnected(): bool
     {
-        if ($this->isClosed() || !($this->getClient() instanceof Client)) {
+        if ($this->isClosed() || ($this->isWebSocket && !($this->getClient() instanceof Client))) {
+            if ($this->getDebug()) {
+                echo "[INFO][".__CLASS__."::".__FUNCTION__."] false\n";
+            }
+
             return false;
         }
 
@@ -363,14 +461,14 @@ class ClientStreamSocket
      */
     final static public function _encode(string $text): string
     {
-        $b = 129; // FIN + text frame
+        $b   = 129; // FIN + text frame
         $len = strlen($text);
         if ($len < 126) {
-            return pack('CC', $b, $len) . $text;
+            return pack('CC', $b, $len).$text;
         } elseif ($len < 65536) {
-            return pack('CCn', $b, 126, $len) . $text;
+            return pack('CCn', $b, 126, $len).$text;
         } else {
-            return pack('CCNN', $b, 127, 0, $len) . $text;
+            return pack('CCNN', $b, 127, 0, $len).$text;
         }
     }
 }
