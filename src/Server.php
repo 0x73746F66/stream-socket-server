@@ -15,6 +15,7 @@ class Server implements iServer
 
     /**
      * @param StreamSocketServer $streamSocketServer
+     * @return Server
      */
     final public function attachStreamSocketServer(StreamSocketServer &$streamSocketServer): Server
     {

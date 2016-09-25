@@ -163,7 +163,7 @@ class ClientStreamSocket
      */
     final public function getData()
     {
-        return json_decode($this->getDataRaw());
+        return json_decode($this->getDataRaw(), true);
     }
 
     /**

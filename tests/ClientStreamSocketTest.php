@@ -174,8 +174,8 @@ class ClientStreamSocketTest extends TestCase
      */
     public function testGetData()
     {
-        $this->clientStreamSocket->setData(json_encode($this->_data));
-        $this->assertObjectHasAttribute('uri', $this->clientStreamSocket->getData());
+        $this->clientStreamSocket->setData(json_encode($this->_data, JSON_OBJECT_AS_ARRAY));
+        $this->assertArrayHasKey('uri', $this->clientStreamSocket->getData());
     }
     /**
      * @covers \sockets\ClientStreamSocket::__construct()
