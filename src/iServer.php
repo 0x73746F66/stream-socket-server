@@ -8,6 +8,12 @@ namespace sockets;
 interface iServer
 {
     /**
+     * iServer constructor.
+     * @param string $callerJobId
+     */
+    public function __construct(string $callerJobId);
+
+    /**
      * @param StreamSocketServer $streamSocketServer
      * @return Server
      */

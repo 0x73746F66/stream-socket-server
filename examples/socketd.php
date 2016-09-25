@@ -10,6 +10,10 @@ $conf = [];
 $conf['DEBUG'] = isset($argv[1]) && $argv[1] === '-d';
 $daemon = new StreamSocketDaemon($conf);
 $daemon->startStreamSocketServer(function ($data, $client, $server) {
+    /**
+     * @var Server $server
+     * @var Client $client
+     */
     // All client messages can be caught here
     // use $server to manage the stream socket server status
     // Clients can also be disconnected via the $server

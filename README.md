@@ -33,7 +33,7 @@ Simply add to your composer.json
 {
   "require": {
     "php": "^7.0",
-    "sockets/php-stream-socket-server": "^1.3"
+    "sockets/php-stream-socket-server": "^1.4"
   }
 }
 ```
@@ -57,26 +57,9 @@ The `StreamSocketDaemon` constructor takes an array of arguments that will confi
 
 ## Usage
 
-To use, create a bootstrap like this;
+To use, create a bootstrap like the one provided in the `examples` directory.
 
-```
-<?php
-declare(ticks = 1);
-declare(strict_types = 1);
-require 'vendor/autoload.php';
-$daemon = new sockets\StreamSocketDaemon(/*$config*/);
-$daemon->startStreamSocketServer(function($data, $client, $server){
-  // All client messages can be caught here
-  // use $server to manage the stream socket server status
-  // Clients can also be disconnected via the $server
-  // Use $client to send responses or simply return it like this;
-  return $data;
-});
-// this line is reached only when the server is stopped
-exit("server terminated at ".time());
-```
-
-The callback will run for every client message the socket receives, it is within this Closure you would initialise your app and based on the contents of the message payload send response/s.
+**Note:** The callback will run for every client message the socket receives, it is within this Closure you would initialise your app and based on the contents of the message payload send response/s.
 
 ## Road map
 

@@ -37,7 +37,7 @@ class StreamSocketServer
     public function __construct(array $config = [])
     {
         $this->_config = array_merge(static::_default_config(), $this->_config, $config);
-        $this->setDebug(boolval($this->_config['DEBUG']??false));
+        $this->setDebug(boolval($this->_config['DEBUG'] ?? false));
     }
 
     /**
@@ -71,7 +71,7 @@ class StreamSocketServer
             'SOCKET_PROTO' => 'tcp',
             'IP'           => $ip,
             'HOSTNAME'     => $hostname,
-            'SOCKET_PORT'  => $port
+            'SOCKET_PORT'  => $port,
         ];
     }
 
@@ -81,18 +81,21 @@ class StreamSocketServer
     final public function start(): StreamSocketServer
     {
         if ($this->getDebug()) {
-            echo "[INFO][" . __CLASS__ . "::" . __FUNCTION__ . "] " . strtoupper($this->_config['SOCKET_PROTO']) . " listening on "
-                . $this->_config['HOSTNAME'] . ":" . $this->_config['SOCKET_PORT'] . "\n";
+            echo "[INFO][".__CLASS__."::".__FUNCTION__."] ".strtoupper($this->_config['SOCKET_PROTO'])." listening on "
+                 .$this->_config['HOSTNAME'].":".$this->_config['SOCKET_PORT']."\n";
         }
-        $this->server = stream_socket_server(strtolower($this->_config['SOCKET_PROTO']) . "://" . $this->_config['IP'] . ":" . $this->_config['SOCKET_PORT'],
+        $this->server = stream_socket_server(
+            strtolower($this->_config['SOCKET_PROTO'])."://".$this->_config['IP'].":".$this->_config['SOCKET_PORT'],
             $errno,
-            $errorMessage);
+            $errorMessage
+        );
         if ($this->server === false) {
-            error_log("[ERROR][" . __CLASS__ . "::" . __FUNCTION__ . "] Could not bind to socket: $errorMessage");
+            error_log("[ERROR][".__CLASS__."::".__FUNCTION__."] Could not bind to socket: $errorMessage");
             if ($this->getDebug()) {
-                echo "[ERROR][" . __CLASS__ . "::" . __FUNCTION__ . "] Could not bind to socket: $errorMessage";
+                echo "[ERROR][".__CLASS__."::".__FUNCTION__."] Could not bind to socket: $errorMessage";
             }
         }
+
         return $this;
     }
 
@@ -121,6 +124,7 @@ class StreamSocketServer
         if (is_callable($callback)) {
             $this->_callback = $callback;
         }
+
         return $this;
     }
 
@@ -130,8 +134,9 @@ class StreamSocketServer
             if ($handle = @stream_socket_accept($this->server, -1)) {
                 $client = new ClientStreamSocket(new Client());
                 $client->attachClientHandle($handle);
+                $client->setDebug($this->getDebug());
                 if ($this->getDebug()) {
-                    echo "[INFO][" . __CLASS__ . "::" . __FUNCTION__ . "] received client socket {$client->jobId}\n";
+                    echo "[INFO][".__CLASS__."::".__FUNCTION__."] received client socket {$client->jobId}\n";
                 }
                 if ($client->validateWebSocket()) {
                     $client->upgradeWebSocket();
@@ -151,9 +156,9 @@ class StreamSocketServer
         $pid = pcntl_fork();
         if ($pid == -1) {
             // Problem launching the job
-            error_log("[ERROR][" . __CLASS__ . "::" . __FUNCTION__ . "] Could not launch new job, exiting\n");
+            error_log("[ERROR][".__CLASS__."::".__FUNCTION__."] Could not launch new job, exiting\n");
             if ($this->getDebug()) {
-                echo "[ERROR][" . __CLASS__ . "::" . __FUNCTION__ . "] Could not launch new job, exiting\n";
+                echo "[ERROR][".__CLASS__."::".__FUNCTION__."] Could not launch new job, exiting\n";
             }
             $client->disconnect();
         } elseif ($pid) {
@@ -161,30 +166,64 @@ class StreamSocketServer
         } else {
             //Forked child
             if ($this->getDebug()) {
-                echo "[INFO][" . __CLASS__ . "::" . __FUNCTION__ . "] Doing something fun in pid " . getmypid() . "\n";
+                echo "[INFO][".__CLASS__."::".__FUNCTION__."] Doing something fun in pid ".getmypid()."\n";
             }
             $this->await($client);
         }
     }
 
     /**
-     * @param $data
+     * @param string|object|array $data
+     * @param string|bool         $clientJobId
      * @return bool
      * @internal ClientStreamSocket $client
      */
-    final public function broadcast($data): bool
+    final public function broadcast($data, $clientJobId = false): bool
     {
         if ($this->getDebug()) {
-            echo "[INFO][" . __CLASS__ . "::" . __FUNCTION__ . "] " . time() . "\n";
+            echo "[INFO][".__CLASS__."::".__FUNCTION__."] ".time()."\n";
         }
         if (!$this->isRunning()) {
             return false;
         }
         foreach ($this->clients as $client) {
+            if ($client->jobId === $clientJobId) {
+                continue;
+            }
+            if ($this->getDebug()) {
+                echo "[INFO][".__CLASS__."::".__FUNCTION__."] broadcast to client socket {$client->jobId}\n";
+            }
             if (!$client($data)) {
                 $this->removeClient($client);
             }
         }
+
+        return true;
+    }
+
+    /**
+     * @param string $type
+     * @param string $message
+     * @return bool
+     * @internal ClientStreamSocket $client
+     */
+    final public function system(string $type, string $message): bool
+    {
+        if ($this->getDebug()) {
+            echo "[INFO][".__CLASS__."::".__FUNCTION__."] ".time()."\n";
+        }
+        if (!$this->isRunning()) {
+            return false;
+        }
+        foreach ($this->clients as $client) {
+            if ($this->getDebug()) {
+                echo "[INFO][".__CLASS__."::".__FUNCTION__."] broadcast to client socket {$client->jobId}\n";
+            }
+            if (!$client->systemSend($type, $message)) {
+                $this->removeClient($client);
+            }
+        }
+
         return true;
     }
 
@@ -198,9 +237,11 @@ class StreamSocketServer
         foreach ($this->clients as $k => $client) {
             if ($client->jobId === $brokenPipeClient->jobId) {
                 unset($this->clients[$k]);
+
                 return true;
             }
         }
+
         return false;
     }
 
@@ -214,9 +255,11 @@ class StreamSocketServer
         foreach ($this->clients as $k => $client) {
             if ($client->jobId === $jobId) {
                 unset($this->clients[$k]);
+
                 return true;
             }
         }
+
         return false;
     }
 
@@ -228,17 +271,18 @@ class StreamSocketServer
     final protected function processMessage(array $data, ClientStreamSocket &$client): bool
     {
         if ($this->getDebug()) {
-            echo "[INFO][" . __CLASS__ . "::" . __FUNCTION__ . "] " . time() . "\n";
+            echo "[INFO][".__CLASS__."::".__FUNCTION__."] ".time()."\n";
         }
         if (!$this->isRunning()) {
             return false;
         }
-        $server = new Server();
+        $server = new Server($client->getJobId(), $data);
         $server->attachStreamSocketServer($this);
         $responseData = call_user_func($this->_callback, $data, $client->getClient(), $server) ?? false;
         if (!empty($responseData) && !$client($responseData)) {
             $this->removeClient($client);
         }
+
         return true;
     }
 
@@ -249,16 +293,17 @@ class StreamSocketServer
     {
         usleep(self::U_SLEEP);
         if ($this->getDebug()) {
-            echo "[INFO][" . __CLASS__ . "::" . __FUNCTION__ . "] " . time() . "\n";
+            echo "[INFO][".__CLASS__."::".__FUNCTION__."] ".time()."\n";
         }
         if ($client->pendingMessage()) {
             if ($client->isWebSocket) {
                 $data = $client->getData();
+                $this->system('client_connected', $client->getJobId());
                 $this->processMessage($data, $client);
                 $this->await($client);
             } else {
                 $data = $client->getDataRaw();
-                $this->broadcast($data);
+                $this->system('sys_admin', $data);
                 $client->disconnect();
             }
         }
@@ -279,6 +324,7 @@ class StreamSocketServer
     final public function setDebug(bool $debug): StreamSocketServer
     {
         $this->debug = $debug;
+
         return $this;
     }
 
@@ -296,6 +342,7 @@ class StreamSocketServer
             fclose($this->server);
             $this->server = false;
         }
+
         return $this;
     }
 
@@ -311,13 +358,14 @@ class StreamSocketServer
                 return $this->clients[$k]->getClient();
             }
         }
+
         return false;
     }
 
     final public function __destruct()
     {
         if ($this->getDebug()) {
-            echo "[INFO][" . __CLASS__ . "::" . __FUNCTION__ . "] Thread closing\n";
+            echo "[INFO][".__CLASS__."::".__FUNCTION__."] Thread closing\n";
         }
     }
 }

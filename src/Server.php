@@ -8,10 +8,24 @@ namespace sockets;
  */
 class Server implements iServer
 {
+    protected $_callerJobId;
+    protected $_callerData = [];
+
     /**
      * @var StreamSocketServer
      */
     protected $streamSocketServer;
+
+    /**
+     * iServer constructor.
+     * @param string $callerJobId
+     * @param array  $data
+     */
+    public function __construct(string $callerJobId, array $data = [])
+    {
+        $this->_callerJobId = $callerJobId;
+        $this->_callerData  = $data;
+    }
 
     /**
      * @param StreamSocketServer $streamSocketServer
@@ -20,6 +34,7 @@ class Server implements iServer
     final public function attachStreamSocketServer(StreamSocketServer &$streamSocketServer): Server
     {
         $this->streamSocketServer = &$streamSocketServer;
+
         return $this;
     }
 
@@ -45,7 +60,7 @@ class Server implements iServer
      */
     final public function broadcast($data): bool
     {
-        return $this->streamSocketServer->broadcast($data);
+        return $this->streamSocketServer->broadcast($data, $this->_callerJobId);
     }
 
     /**
@@ -65,4 +80,5 @@ class Server implements iServer
     {
         return $this->streamSocketServer->removeClientByJobId($client->getId());
     }
+
 }

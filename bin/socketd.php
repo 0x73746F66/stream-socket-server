@@ -15,6 +15,10 @@ $conf = [];
 $conf['DEBUG'] = isset($argv[1]) && $argv[1] === '-d';
 $daemon = new StreamSocketDaemon($conf);
 $daemon->startStreamSocketServer(function ($data, $client, $server) {
+    /**
+     * @var Server $server
+     * @var Client $client
+     */
     return $data;
 });
 exit("server terminated at " . time());
