@@ -119,12 +119,17 @@ class Client implements iClient
      */
     final public function sendJSON(array $response, bool $includeMeta = true): bool
     {
-        $data = $includeMeta ? [
-            '@meta'   => [
-                '_key' => $this->getId(),
-            ],
-            'message' => $response,
-        ]: $response;
+        $data = $response;
+        if ($includeMeta) {
+            $meta = $response['@meta'] ?? [];
+            $data = [
+                '@meta'   => array_merge($meta, [
+                    '_key' => $this->getId(),
+                ]),
+                'message' => $response,
+            ];
+            unset($response['@meta']);
+        }
         if ($this->isJson($this->getDataRaw()) && array_key_exists('@meta', $this->getData())) {
             $meta = $this->getData();
             if (array_key_exists('_id', $meta['@meta'])) {
@@ -149,7 +154,8 @@ class Client implements iClient
                         $data,
                         JSON_ERROR_INF_OR_NAN |
                         JSON_NUMERIC_CHECK |
-                        JSON_PRESERVE_ZERO_FRACTION
+                        JSON_PRESERVE_ZERO_FRACTION |
+                        JSON_OBJECT_AS_ARRAY
                     )
                 )
             ) === -1

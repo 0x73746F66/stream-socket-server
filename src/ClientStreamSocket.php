@@ -136,7 +136,9 @@ class ClientStreamSocket
                             $data,
                             JSON_ERROR_INF_OR_NAN |
                             JSON_NUMERIC_CHECK |
-                            JSON_PRESERVE_ZERO_FRACTION
+                            JSON_PRESERVE_ZERO_FRACTION |
+                            JSON_PRESERVE_ZERO_FRACTION |
+                            JSON_OBJECT_AS_ARRAY
                         )
                     )
                 ) === -1
@@ -312,7 +314,8 @@ class ClientStreamSocket
                             $metaData,
                             JSON_ERROR_INF_OR_NAN |
                             JSON_NUMERIC_CHECK |
-                            JSON_PRESERVE_ZERO_FRACTION
+                            JSON_PRESERVE_ZERO_FRACTION |
+                            JSON_OBJECT_AS_ARRAY
                         )
                     );
                 }

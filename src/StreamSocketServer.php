@@ -143,6 +143,7 @@ class StreamSocketServer
                 }
                 $this->clients[] = &$client;
                 $this->launchJob($client);
+                $this->system('client_connected', $client->getJobId());
             }
             $this->listen();
         }
@@ -298,11 +299,11 @@ class StreamSocketServer
         if ($client->pendingMessage()) {
             if ($client->isWebSocket) {
                 $data = $client->getData();
-                $this->system('client_connected', $client->getJobId());
                 $this->processMessage($data, $client);
                 $this->await($client);
             } else {
                 $data = $client->getDataRaw();
+
                 $this->system('sys_admin', $data);
                 $client->disconnect();
             }
